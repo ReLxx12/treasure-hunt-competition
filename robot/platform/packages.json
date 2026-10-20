@@ -1,0 +1,181 @@
+{
+  "source_repository": "https://github.com/nxrobo/spark_noetic",
+  "base_revision": "917b649dfa24e3da05d78f61960ac15951d7c4d8",
+  "source_kind": "robot working-directory snapshot; not a clean checkout of base revision",
+  "packages": [
+    {
+      "name": "serial",
+      "source": "src/spark/serial",
+      "destination": "robot/platform/src/serial",
+      "license_metadata": [
+        "MIT"
+      ],
+      "file_count": 31
+    },
+    {
+      "name": "spark_bringup",
+      "source": "src/spark/spark_bringup",
+      "destination": "robot/platform/src/spark_bringup",
+      "license_metadata": [
+        "TODO"
+      ],
+      "file_count": 5
+    },
+    {
+      "name": "spark_description",
+      "source": "src/spark/spark_description",
+      "destination": "robot/platform/src/spark_description",
+      "license_metadata": [
+        "BSD"
+      ],
+      "file_count": 26
+    },
+    {
+      "name": "spark_teleop",
+      "source": "src/spark/spark_teleop",
+      "destination": "robot/platform/src/spark_teleop",
+      "license_metadata": [
+        "TODO"
+      ],
+      "file_count": 10
+    },
+    {
+      "name": "cereal_port",
+      "source": "src/spark_driver/base/cereal_port",
+      "destination": "robot/platform/src/cereal_port",
+      "license_metadata": [
+        "TODO"
+      ],
+      "file_count": 5
+    },
+    {
+      "name": "spark_base",
+      "source": "src/spark_driver/base/spark_base",
+      "destination": "robot/platform/src/spark_base",
+      "license_metadata": [
+        "TODO"
+      ],
+      "file_count": 13
+    },
+    {
+      "name": "swiftpro",
+      "source": "src/spark_driver/arm/uArm/swiftpro",
+      "destination": "robot/platform/src/swiftpro",
+      "license_metadata": [
+        "TODO"
+      ],
+      "file_count": 40
+    },
+    {
+      "name": "camera_driver_transfer",
+      "source": "src/spark_driver/camera/camera_driver_transfer",
+      "destination": "robot/platform/src/camera_driver_transfer",
+      "license_metadata": [
+        "TODO"
+      ],
+      "file_count": 8
+    },
+    {
+      "name": "realsense2_camera",
+      "source": "src/spark_driver/camera/realsense-ros/realsense2_camera",
+      "destination": "robot/platform/src/realsense2_camera",
+      "license_metadata": [
+        "Apache 2.0"
+      ],
+      "file_count": 35
+    },
+    {
+      "name": "realsense2_description",
+      "source": "src/spark_driver/camera/realsense-ros/realsense2_description",
+      "destination": "robot/platform/src/realsense2_description",
+      "license_metadata": [
+        "Apache 2.0"
+      ],
+      "file_count": 34
+    },
+    {
+      "name": "lidar_driver_transfer",
+      "source": "src/spark_driver/lidar/lidar_driver_transfer",
+      "destination": "robot/platform/src/lidar_driver_transfer",
+      "license_metadata": [
+        "TODO"
+      ],
+      "file_count": 5
+    },
+    {
+      "name": "ydlidar_ros_driver",
+      "source": "src/spark_driver/lidar/ydlidar_g6",
+      "destination": "robot/platform/src/ydlidar_ros_driver",
+      "license_metadata": [
+        "MIT"
+      ],
+      "file_count": 23
+    },
+    {
+      "name": "spark_slam",
+      "source": "src/spark_app/spark_slam",
+      "destination": "robot/platform/src/spark_slam",
+      "license_metadata": [
+        "Apache",
+        "TODO"
+      ],
+      "file_count": 36
+    },
+    {
+      "name": "spark_navigation",
+      "source": "src/spark_app/spark_navigation",
+      "destination": "robot/platform/src/spark_navigation",
+      "license_metadata": [
+        "BSD"
+      ],
+      "file_count": 53
+    },
+    {
+      "name": "vision_msgs",
+      "source": "src/3rd_app/tensorflow_app/vision_msgs",
+      "destination": "robot/platform/src/vision_msgs",
+      "license_metadata": [
+        "Apache License 2.0"
+      ],
+      "file_count": 19
+    },
+    {
+      "name": "common",
+      "source": "src/3rd_app/spark_hm_match_25/spark_hm_match/spark_hm_task_match/common",
+      "destination": "robot/platform/src/common",
+      "license_metadata": [
+        "TODO"
+      ],
+      "file_count": 24
+    },
+    {
+      "name": "ar_track_alvar",
+      "source": "src/3rd_app/spark_hm_match_25/spark_hm_match/spark_hm_task_match/ar_track_alvar/ar_track_alvar",
+      "destination": "robot/platform/src/ar_track_alvar",
+      "license_metadata": [
+        "LGPL-2.1"
+      ],
+      "file_count": 179
+    },
+    {
+      "name": "ar_track_alvar_msgs",
+      "source": "src/3rd_app/spark_hm_match_25/spark_hm_match/spark_hm_task_match/ar_track_alvar/ar_track_alvar_msgs",
+      "destination": "robot/platform/src/ar_track_alvar_msgs",
+      "license_metadata": [
+        "BSD"
+      ],
+      "file_count": 7
+    },
+    {
+      "name": "ydlidar_g2",
+      "source": "src/spark_driver/lidar/ydlidar_g2",
+      "destination": "robot/platform/src/ydlidar_g2",
+      "license_metadata": [
+        "BSD"
+      ],
+      "file_count": 60,
+      "reason": "spark_description G6 xacro references ydlidar_g2 URDF"
+    }
+  ],
+  "excluded": "build outputs, Git/IDE metadata, caches, backups, maps and local pkl/bag data"
+}

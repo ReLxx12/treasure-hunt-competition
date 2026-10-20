@@ -1,0 +1,39 @@
+<!--启动spark各种驱动-->
+<launch>
+	<arg name="enable_arm_tel" default="false"/>   
+	<arg name="arm_type_tel" default="uarm" doc="arm types [uarm, sagittarius_arm]"/>
+
+	<arg name="start_base" default="true"/>
+	<arg name="start_camera" default="true"/>
+	<arg name="serialport" default="/dev/sparkBase"/>
+	<arg name="dp_rgist" default="false"/>
+	<arg name="camera_type_tel" default="astrapro" doc="camera type [astrapro, astra,d435]"/>
+	<arg name="lidar_type_tel" default="3iroboticslidar2" doc="lidar type [3iroboticslidar2, ydlidar_g2]"/>
+  	<!--启动描述 -->
+	<include file="$(find spark_description)/launch/spark_description.launch">
+		<arg name="camera_type_tel"	value="$(arg camera_type_tel)"/>	
+		<arg name="lidar_type_tel" value="$(arg lidar_type_tel)"/>	
+		<arg name="enable_arm_tel"	value="$(arg enable_arm_tel)"/>
+		<arg name="arm_type_tel"	value="$(arg arm_type_tel)"/>	
+	</include>
+
+	<!--启动底盘 -->
+  	<!--看运行的功能是否需要启动底盘，如果不需要就不启动 -->
+  	<group if="$(arg start_base)">
+
+  		<include file="$(find spark_base)/launch/spark_base.launch">
+			<arg name="serialport"                  value="$(arg serialport)"/>
+  		</include>
+
+  	</group>
+
+	<!--打开摄像头 -->
+	<group if="$(arg start_camera)">
+		<!-- 启动摄像头 -->
+  		<include file="$(find camera_driver_transfer)/launch/$(arg camera_type_tel).launch">
+			<arg name="dp_rgist"	value="$(arg dp_rgist)"/>	
+		</include>
+	</group>
+
+
+</launch>

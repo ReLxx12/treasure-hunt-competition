@@ -1,0 +1,5 @@
+# Keep the robot snapshot byte-identical to source-manifest.csv.
+# The copied executable scripts already use LF line endings.
+src/** -text !eol
+udev/** -text !eol
+licenses/** -text !eol
