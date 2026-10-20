@@ -1,0 +1,150 @@
+<!--move2grab-->
+<!--SPARK技术讨论与反馈群：8346256-->
+<launch>
+	<!-- Arguments -->
+	<arg name="slam_methods" default="gmapping" doc="slam type [gmapping, cartographer, hector, karto, frontier_exploration]"/>
+	<arg name="configuration_basename" default="spark_lds_2d.lua"/>
+	<arg name="open_rviz" default="true"/>
+	<arg name="open_keyboard" default="false"/>
+	<arg name="open_guide" default="false"/>
+	<arg name="use_indiv" default="false"/>
+	<arg name="lidar_type_tel" default="ydlidar_g6" doc="lidar type [3iroboticslidar2, ydlidar_g2, ydlidar_g6]"/>
+	<arg name="detector_type" default="yolo" doc="detector type [coco, yolo]"/>
+	<arg name="yolo_model_path" default="$(find auto_match)/models/treasure6_yolo11n.pt"/>
+	<arg name="yolo_conf" default="0.45"/>
+	<arg name="yolo_imgsz" default="640"/>
+	<arg name="yolo_device" default="cpu"/>
+	<arg name="yolo_publish_debug" default="true"/>
+	<arg name="stack_depth_topic" default="/camera/aligned_depth_to_color/image_raw"/>
+	<arg name="stack_camera_info_topic" default="/camera/color/camera_info"/>
+	<!-- 摄像机类型 -->
+	<arg name="camera_type_tel" default="d435" doc="camera type [astrapro, astra, d435...]"/>
+	<param name="detector_type" value="$(arg detector_type)"/>
+
+	<!--spark底盘驱动，机器人描述,底盘,相机-->
+	<include file="$(find spark_bringup)/launch/driver_bringup.launch">
+		<arg name="camera_type_tel" value="$(arg camera_type_tel)"/>
+		<arg name="lidar_type_tel" value="$(arg lidar_type_tel)"/>
+	</include>
+
+	<!--UARM机械臂-->
+	<include file="$(find swiftpro)/launch/pro_control_nomoveit.launch"/>
+
+	<!-- 3D sensor -->
+	<arg name="3d_sensor" default="3i_lidar"/>
+	<!-- 启动雷达 -->
+	<include file="$(find lidar_driver_transfer)/launch/$(arg lidar_type_tel).launch">
+	</include>
+		
+
+	<!-- tensorflow COCO物体位置识别 -->
+	<node pkg= "auto_match" name="detect_ros" type="detect_ros.py" output="screen" if="$(eval arg('detector_type')=='coco')"> 
+		<remap from="image" to="/camera/color/image_raw" if="$(eval arg('camera_type_tel')=='d435')"/>
+		<remap from="image" to="/camera/rgb/image_raw" if="$(eval arg('camera_type_tel')=='astrapro')"/>
+		<remap from="image" to="/camera/rgb/image_raw" if="$(eval arg('camera_type_tel')=='astra')"/>
+	</node>
+
+	<!-- YOLO自训练物体位置识别 -->
+	<node pkg= "auto_match" name="yolo_detect_ros" type="yolo_detect_ros.py" output="screen" if="$(eval arg('detector_type')=='yolo')">
+		<param name="model_path" value="$(arg yolo_model_path)"/>
+		<param name="conf" value="$(arg yolo_conf)"/>
+		<param name="imgsz" value="$(arg yolo_imgsz)"/>
+		<param name="device" value="$(arg yolo_device)"/>
+		<param name="publish_debug" value="$(arg yolo_publish_debug)"/>
+		<remap from="image" to="/camera/color/image_raw" if="$(eval arg('camera_type_tel')=='d435')"/>
+		<remap from="image" to="/camera/rgb/image_raw" if="$(eval arg('camera_type_tel')=='astrapro')"/>
+		<remap from="image" to="/camera/rgb/image_raw" if="$(eval arg('camera_type_tel')=='astra')"/>
+	</node>
+
+	<!-- 地点记录 -->
+	<node pkg="auto_match" name="mark_move" type="mark_move.py" output="screen"/>
+	
+
+	<!-- rviz -->
+	<group if="$(arg open_rviz)">
+		<node pkg="rviz" type="rviz" name="rviz" required="true" args="-d $(find auto_match)/rviz/auto_match.rviz"/>
+	</group>
+	
+	<!-- =====一开始准备记录地点====== -->
+	<group if="$(arg open_guide)">
+
+		<!-- SLAM: Gmapping, Cartographer, Hector, Karto, Frontier_exploration-->
+		<include file="$(find spark_slam)/launch/spark_$(arg slam_methods).launch">
+			<arg name="configuration_basename" value="$(arg configuration_basename)"/>
+		</include>	
+
+		<!-- 地点记录引导脚本 -->
+		<node pkg="auto_match" type="cmd_location_learn_guide.sh" name="cmd_location_learn_guide" />
+
+		<!--创建新的终端，spark键盘控制 “wsad”分别代表“前后左右”-->
+		<node pkg="spark_teleop" type="keyboard_control.sh" name="kc" if="$(arg open_guide)"/>
+
+	</group>
+	
+	<!-- =====记录地点完成后====== -->
+	<group unless="$(arg open_guide)">
+		<!-- Map server-->	
+		<arg name="map_file" default="$(find auto_match)/config/test_map.yaml"/>
+		<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" unless="$(arg open_guide)"/>
+		
+		<!-- 流程程序 -->
+	<node pkg="auto_match" name="runtask" type="runtask.py" output="screen" unless="$(arg open_guide)">
+		<param name="stack_depth_topic" value="$(arg stack_depth_topic)"/>
+		<param name="stack_camera_info_topic" value="$(arg stack_camera_info_topic)"/>
+	</node>
+
+		
+		<!-- AMCL-->
+		<arg name="custom_amcl_launch_file" default="$(find auto_match)/config/amcl.launch.xml"/>
+		<arg name="initial_pose_x" default="-0.039653"/> 
+		<arg name="initial_pose_y" default="0.099789"/> 
+		<arg name="initial_pose_a" default="1.095815"/>
+		<arg name="auto_initial_pose" default="true"/>
+		<arg name="initial_pose_xy_stddev" default="0.08"/>
+		<arg name="initial_pose_yaw_stddev" default="0.35"/>
+		<arg name="initial_pose_warmup_enabled" default="true"/>
+		<arg name="initial_pose_warmup_angular_speed" default="0.25"/>
+		<arg name="initial_pose_warmup_duration" default="4.0"/>
+		<arg name="initial_pose_warmup_return_enabled" default="false"/>
+		<arg name="initial_pose_escape_forward_enabled" default="true"/>
+		<arg name="initial_pose_escape_forward_speed" default="0.10"/>
+		<arg name="initial_pose_escape_forward_distance" default="0.30"/>
+		<arg name="initial_pose_clear_costmaps" default="true"/>
+		<include file="$(arg custom_amcl_launch_file)">
+				<arg name="initial_pose_x" value="$(arg initial_pose_x)"/>
+				<arg name="initial_pose_y" value="$(arg initial_pose_y)"/>
+				<arg name="initial_pose_a" value="$(arg initial_pose_a)"/>
+		</include> 
+		
+		<!-- Move base -->
+		<arg name="custom_param_file" default="$(find auto_match)/config/move_base_param/costmap_common_params.yaml"/>
+		<include file="$(find auto_match)/config/move_base_param/move_base.launch.xml">
+			<arg name="custom_param_file" value="$(arg custom_param_file)"/>
+		</include>
+
+		<!-- 自动下发AMCL初始位姿 -->
+		<node pkg="auto_match" type="auto_initial_pose.py" name="auto_initial_pose" output="screen" if="$(arg auto_initial_pose)">
+			<param name="initial_pose_x" value="$(arg initial_pose_x)"/>
+			<param name="initial_pose_y" value="$(arg initial_pose_y)"/>
+			<param name="initial_pose_a" value="$(arg initial_pose_a)"/>
+			<param name="xy_stddev" value="$(arg initial_pose_xy_stddev)"/>
+			<param name="yaw_stddev" value="$(arg initial_pose_yaw_stddev)"/>
+			<param name="warmup_enabled" value="$(arg initial_pose_warmup_enabled)"/>
+			<param name="warmup_angular_speed" value="$(arg initial_pose_warmup_angular_speed)"/>
+			<param name="warmup_duration" value="$(arg initial_pose_warmup_duration)"/>
+			<param name="warmup_return_enabled" value="$(arg initial_pose_warmup_return_enabled)"/>
+			<param name="escape_forward_enabled" value="$(arg initial_pose_escape_forward_enabled)"/>
+			<param name="escape_forward_speed" value="$(arg initial_pose_escape_forward_speed)"/>
+			<param name="escape_forward_distance" value="$(arg initial_pose_escape_forward_distance)"/>
+			<param name="clear_costmaps" value="$(arg initial_pose_clear_costmaps)"/>
+		</node>
+
+		<!-- 启动move_demo -->
+		<include file="$(find move_demo)/launch/move_demo.launch" />
+
+		<!-- 键盘控制，采图或手动调整位置时使用 -->
+		<node pkg="spark_teleop" type="keyboard_control.sh" name="kc" if="$(arg open_keyboard)"/>
+	
+	</group>
+
+</launch>

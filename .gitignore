@@ -1,0 +1,35 @@
+# Python / Ultralytics training outputs
+runs/
+wandb/
+*.log
+
+# Generated / local datasets
+training/datasets/
+
+# ROS and Python generated files
+build/
+devel/
+install/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Robot/site-specific data
+mark_map.pkl
+*.bag
+*.db3
+*.pgm
+robot/**/config/test_map.yaml
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Personal environment files
+.env
+.env.*
+

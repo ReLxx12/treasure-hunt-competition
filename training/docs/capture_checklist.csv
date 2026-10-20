@@ -1,0 +1,27 @@
+id,split,target,scene,rotation,view,distance,lighting,background,notes
+1,train,cake,cube,0deg,top_oblique,near,normal,field_floor,whole cube visible
+2,train,cake,cube,90deg,top_oblique,mid,normal,field_floor,rotated icon
+3,train,cake,cube,180deg,top_oblique,mid,bright,field_floor,inverted icon
+4,train,cake,cube,270deg,top_oblique,far,dim,field_floor,edge of frame
+5,train,banana,cube,0deg,top_oblique,near,normal,field_floor,whole cube visible
+6,train,banana,cube,90deg,top_oblique,mid,bright,field_floor,rotated icon
+7,train,banana,cube,180deg,top_oblique,mid,dim,field_floor,inverted icon
+8,train,banana,cube,tilted,front_oblique,far,normal,field_floor,partial perspective
+9,train,clock,cube,0deg,top_oblique,near,normal,field_floor,whole cube visible
+10,train,clock,cube,90deg,top_oblique,mid,bright,field_floor,rotated icon
+11,train,clock,cube,180deg,top_oblique,mid,dim,field_floor,inverted icon
+12,train,clock,cube,tilted,front_oblique,far,normal,field_floor,partial perspective
+13,train,toy,cube,0deg,top_oblique,near,normal,field_floor,whole cube visible
+14,train,toy,cube,90deg,top_oblique,mid,bright,field_floor,rotated icon
+15,train,toy,cube,180deg,top_oblique,mid,dim,field_floor,inverted icon
+16,train,toy,cube,tilted,front_oblique,far,normal,field_floor,partial perspective
+17,train,banana+clock,cubes,mixed,top_oblique,mid,normal,field_floor,two cubes close together
+18,train,cake+toy,cubes,mixed,top_oblique,mid,bright,field_floor,two cubes close together
+19,train,board_symbols,classification_board,0deg,front,mid,normal,board_background,three board slots visible
+20,train,board_symbols,classification_board,small_tilt,front,mid,dim,board_background,AR aligned but dim
+21,val,cake,cube,180deg,top_oblique,mid,normal,field_floor,validation inverted sample
+22,val,banana,cube,270deg,top_oblique,mid,normal,field_floor,validation rotated sample
+23,val,clock,cube,tilted,front_oblique,mid,bright,field_floor,validation tilted sample
+24,val,toy,cube,90deg,top_oblique,far,dim,field_floor,validation far sample
+25,val,board_symbols,classification_board,small_tilt,front,mid,normal,board_background,validation board sample
+

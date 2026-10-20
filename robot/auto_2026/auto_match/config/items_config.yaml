@@ -1,0 +1,311 @@
+items:
+  tie: 32
+  cup: 47
+  banana: 52
+  apple: 53
+  sandwich: 54
+  orange: 55
+  donut: 60
+  cake: 61
+  clock: 85
+  teddybear: 88
+  wine glass: 46
+detector_profiles:
+  coco:
+    tie: 32
+    cup: 47
+    banana: 52
+    apple: 53
+    sandwich: 54
+    orange: 55
+    donut: 60
+    cake: 61
+    clock: 85
+    teddybear: 88
+    wine glass: 46
+  yolo:
+    cake: 0
+    banana: 1
+    apple: 2
+    clock: 3
+    broccoli: 4
+    teddybear: 5
+objects:
+  objects_a: cake
+
+grasp_profiles:
+  default:
+    u_offset: 0.0
+    v_offset: 0.0
+    x_offset: 0.0
+    y_offset: -30.0
+    z: -62.0
+    approach_z: 22.0
+    lift_z: 122.0
+  banana:
+    x_offset: 20.0
+    y_offset: -40.0
+    z: -62.0
+  cake:
+    # The competition cake is on the second layer.
+    x_offset: 0.0
+    y_offset: -30.0
+    z: 30.0
+    approach_z: 31.0
+    lift_z: 46.0
+  teddybear:
+    x_offset: 20.0
+    y_offset: -20.0
+    z: -62.0
+  clock:
+    x_offset: 20.0
+    y_offset: -40.0
+    z: -62.0
+
+full_rule:
+  enabled: true
+  cake: cake
+  # 10 min official match. Stop starting new actions before the real deadline.
+  debug_disable_time_limit: true
+  task_time_limit_sec: 570
+  task_safety_margin_sec: 15
+  min_nav_time_left_sec: 25
+  min_grasp_time_left_sec: 30
+  min_drop_time_left_sec: 25
+  scoring_objects:
+    - teddybear
+    - clock
+    - banana
+  # The board is interpreted left-to-right as B, C, D.
+  board_drop_zones:
+    - Collection_B
+    - Collection_C
+    - Collection_D
+  # Strict board detection prevents random fallback from sending objects to a
+  # wrong B/C/D zone. Set strict_board_required to false only for debugging.
+  strict_board_required: true
+  board_retry_count: 3
+  board_min_conf: 0.45
+  board_min_x_gap: 30
+  # If the robot arrives slightly off-angle, scan around the recorded pose.
+  board_scan_degrees:
+    - 0
+    - -8
+    - 8
+    - -16
+    - 16
+  board_scan_turn_vel: 0.22
+  board_scan_settle_sec: 0.6
+  # Classification board should appear in the upper camera image. This avoids
+  # using center-field cubes as the random board order.
+  board_roi:
+    enabled: true
+    x_min: 60
+    x_max: 580
+    y_min: 0
+    y_max: 250
+  # After move_base reports success, re-align camera/arm-facing task points to
+  # the recorded yaw. This compensates for move_base goal tolerance at key poses.
+  heading_refine:
+    enabled: true
+    tolerance_deg: 3.0
+    max_turn_deg: 25.0
+    turn_vel: 0.22
+    marks:
+      - Classification_area
+      - Sorting_N
+      - Sorting_E
+      - Sorting_S
+      - Sorting_W
+      - Collection_A
+      - Collection_B
+      - Collection_C
+      - Collection_D
+  # Used only when strict_board_required is false.
+  fallback_board_order:
+    - teddybear
+    - clock
+    - banana
+  cake_drop_zone: Collection_A
+  cake_sorting_points:
+    - Sorting_N
+  sorting_points:
+    - Sorting_N
+  cake_forward_adjustments:
+    Sorting_N: 0.10
+  sorting_forward_adjustments:
+    Sorting_N: 0.05
+  north_only:
+    enabled: true
+    sorting_mark: Sorting_N
+    transit_mark: Transit_N
+    advance_step: 0.03
+    max_advance: 0.25
+    exit_back_distance: 0.38
+    advance_settle_sec: 0.3
+  drop_side_escape:
+    Collection_B:
+      turn_degree: 90.0
+      distance: 0.40
+      turn_vel: 0.30
+      linear_vel: 0.18
+      turn_timeout_sec: 10.0
+      move_timeout_sec: 6.0
+    Collection_C:
+      turn_degree: -90.0
+      distance: 0.40
+      turn_vel: 0.30
+      linear_vel: 0.18
+      turn_timeout_sec: 10.0
+      move_timeout_sec: 6.0
+  arm_motion:
+    # The stock driver does not report actual arrival. Estimate wait time from
+    # Cartesian command distance and keep conservative lower/upper bounds.
+    dynamic_wait_enabled: true
+    estimated_speed_mm_s: 120.0
+    settle_margin_sec: 0.25
+    min_wait_sec: 0.45
+    max_wait_sec: 2.40
+    first_move_wait_sec: 2.00
+    legacy_wait_sec: 3.00
+    approach_settle_sec: 0.15
+    contact_settle_sec: 0.20
+    pump_grip_wait_sec: 0.70
+    lift_settle_sec: 0.10
+    drop_settle_sec: 0.15
+    # The arm is already above the stack when return navigation begins.
+    async_retract_enabled: true
+    retract_clearance_wait_sec: 0.70
+  placement:
+    # Legacy/default point remains the fixed cake placement target.
+    x: 300.0
+    y: 0.0
+    main_x: 300.0
+    main_y: -30.0
+    fallback_x: 100.0
+    fallback_y: 0.0
+    base_z: -50.0
+    stack_step_z: 110.0
+    max_z: 150.0
+    hover_margin_z: 25.0
+    max_hover_z: 170.0
+    release_wait_sec: 0.8
+    stack_vision:
+      enabled: false
+      depth_topic: /camera/aligned_depth_to_color/image_raw
+      camera_info_topic: /camera/color/camera_info
+      frame_count: 7
+      min_stable_frames: 5
+      frame_timeout_sec: 0.8
+      observation_timeout_sec: 8.0
+      max_frame_age_sec: 0.5
+      min_depth_mm: 150.0
+      max_depth_mm: 2000.0
+      min_valid_pixels: 200
+      foreground_percentile: 5.0
+      plane_band_mm: 20.0
+      morphology_kernel: 3
+      min_component_area: 100
+      center_tolerance_px: 8.0
+      depth_tolerance_mm: 15.0
+      max_correction_mm: 40.0
+      # Calibrate ROI, reference pixel, and local 2x2 pixel-to-arm matrix at
+      # each recorded collection pose before setting calibrated to true.
+      collections:
+        Collection_B:
+          calibrated: false
+          roi: {x_min: 0, x_max: 0, y_min: 0, y_max: 0}
+          reference_pixel: [0.0, 0.0]
+          pixel_to_arm_mm: [[0.0, 0.0], [0.0, 0.0]]
+        Collection_C:
+          calibrated: false
+          roi: {x_min: 0, x_max: 0, y_min: 0, y_max: 0}
+          reference_pixel: [0.0, 0.0]
+          pixel_to_arm_mm: [[0.0, 0.0], [0.0, 0.0]]
+        Collection_D:
+          calibrated: false
+          roi: {x_min: 0, x_max: 0, y_min: 0, y_max: 0}
+          reference_pixel: [0.0, 0.0]
+          pixel_to_arm_mm: [[0.0, 0.0], [0.0, 0.0]]
+  grasp_search:
+    enabled: true
+    # Default only for sorting marks without an explicit forward adjustment.
+    forward_distance: 0.08
+    yaw_offsets:
+      - -8
+      - 0
+      - 8
+    turn_vel: 0.22
+    settle_sec: 0.35
+    verify_after_lift: true
+    verify_pixel_tolerance: 60.0
+    verify_timeout: 1.0
+    verify_settle_sec: 0.3
+    verify_retry_count: 1
+    verify_retry_forward_distance: 0.03
+    verify_frames: 2
+    verify_iou_threshold: 0.25
+    verify_frame_interval_sec: 0.15
+    target_preference:
+      comfort_first: true
+      comfort_x_min: 70.0
+      comfort_x_max: 220.0
+      comfort_y_abs_max: 100.0
+      advance_x_min: 190.0
+      x_ideal: 140.0
+      x_soft_min: 70.0
+      x_soft_max: 220.0
+      x_min: 50.0
+      x_max: 380.0
+      y_ideal: 0.0
+      y_abs_max: 220.0
+      confidence_weight: 100.0
+      x_weight: 1.0
+      y_weight: 0.6
+      edge_weight: 2.0
+    item_target_preferences:
+      cake:
+        comfort_x_min: 220.0
+        comfort_x_max: 350.0
+        comfort_y_abs_max: 100.0
+        advance_x_min: 350.0
+        x_ideal: 320.0
+        x_soft_min: 220.0
+        x_soft_max: 350.0
+        x_min: 50.0
+        x_max: 380.0
+        y_abs_max: 220.0
+  zone_capacities:
+    Collection_A: 1
+    Collection_B: 3
+    Collection_C: 3
+    Collection_D: 3
+  cake_search_rounds: 2
+  no_progress_round_limit: 2
+  # Route through side waypoints around the center 3x3 block area. In strict
+  # mode the task stops if these waypoints have not been recorded.
+  navigation:
+    enabled: false
+    require_transit_marks: true
+    route_pause_sec: 0.3
+    arrival_settle_sec:
+      classification: 0.8
+      sorting: 0.4
+      drop: 0.6
+    transit_ring:
+      - Transit_N
+      - Transit_E
+      - Transit_S
+      - Transit_W
+    target_sides:
+      Classification_area: Transit_N
+      Sorting_N: Transit_N
+      Sorting_E: Transit_E
+      Sorting_S: Transit_S
+      Sorting_W: Transit_W
+      Collection_A: Transit_W
+      Collection_B: Transit_E
+      Collection_C: Transit_E
+      Collection_D: Transit_W
+  max_scoring_items: 9
+  board_detection_frames: 8

@@ -1,0 +1,56 @@
+# Reference config for the 2026 auto match task.
+#
+# This file is intentionally conservative: it reuses the 2024 demo stack
+# topics and mark names, but exposes all 2026-specific choices here.
+
+# COCO ids used by the old detect_ros.py model.
+# toy means the "teddybear" class in COCO.
+items:
+  cake: 61
+  clock: 85
+  toy: 88
+  banana: 52
+
+# Temporary/manual replacement for classification-board recognition.
+# In the real match this mapping must come from the random classification board.
+# cake is fixed by rule and must go to zone A first.
+classification_mapping:
+  toy: B
+  clock: C
+  banana: D
+
+# These marks must be learned with mark_move.py before a real run.
+marks:
+  start_leave_distance: 0.30
+  board: Classification_area
+  pickup_points:
+    - Sorting_N
+    - Sorting_W
+  drop_zones:
+    A: Collection_A
+    B: Collection_B
+    C: Collection_C
+    D: Collection_D
+
+task:
+  max_blocks: 10
+  nav_timeout_sec: 60
+  detect_timeout_sec: 2.0
+  wait_for_start_topic: /task_start_flag
+
+arm:
+  # Existing 2024 code reads four calibration numbers from ~/thefile.txt:
+  # arm_x = k1 * image_y + b1
+  # arm_y = k2 * image_x + b2
+  calibration_file: ~/thefile.txt
+
+  # Basic poses copied from the 2024 demo. Tune on the real robot.
+  home: [130, 0, 35]
+  ready: [50, 180, 160]
+  drop: [300, 0, 120]
+
+  # Grasp z positions. Tune these for block height, camera pose and suction cup.
+  grasp_z: -55
+  pre_grasp_lift: 20
+  post_grasp_lift: 120
+

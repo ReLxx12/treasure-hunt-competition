@@ -1,0 +1,16 @@
+<launch>
+  <node pkg="b_turnbody_node" type="b_turnbody_actionlib" name="b_turnbody_actionlib" output="screen">
+    <param name="angular_p" type="double" value="0.0308"/> <!-- 1.17: 0.017 -->
+    <param name="angular_i" type="double" value="0"/>
+    <param name="max_rotation_vel" type="double" value="1.0"/> <!-- 1.17: 2.0 -->
+    <param name="min_rotation_vel" type="double" value="0.36"/> <!-- 1.17 1.2 -->
+    <param name="dead_degree" type="double" value="3"/>
+    <!--remap from="/cmd_vel" to="/cmd_vel_unsafe"/-->
+
+  </node>
+  <node pkg="b_move_straight_node" type="b_move_straight_actionlib" name="b_move_straight_actionlib" output="screen"> </node>
+
+</launch>
+
+
+

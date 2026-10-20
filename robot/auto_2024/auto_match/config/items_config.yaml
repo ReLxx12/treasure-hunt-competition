@@ -1,0 +1,15 @@
+items:
+  tie: 32
+  cup: 47
+  banana: 52
+  apple: 53
+  sandwich: 54
+  orange: 55
+  donut: 60
+  cake: 61
+  clock: 85
+  teddybear: 88
+  wine glass: 46
+objects:
+  objects_a: clock
+

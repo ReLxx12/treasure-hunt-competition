@@ -1,0 +1,95 @@
+<!--move2grab-->
+<!--SPARK技术讨论与反馈群：8346256-->
+<launch>
+	<!-- Arguments -->
+	<arg name="slam_methods" default="gmapping" doc="slam type [gmapping, cartographer, hector, karto, frontier_exploration]"/>
+	<arg name="configuration_basename" default="spark_lds_2d.lua"/>
+	<arg name="open_rviz" default="true"/>
+	<arg name="open_keyboard" default="false"/>
+	<arg name="open_guide" default="false"/>
+	<arg name="use_indiv" default="false"/>
+	<arg name="lidar_type_tel" default="ydlidar_g6" doc="lidar type [3iroboticslidar2, ydlidar_g2, ydlidar_g6]"/>
+	<!-- 摄像机类型 -->
+	<arg name="camera_type_tel" default="d435" doc="camera type [astrapro, astra, d435...]"/>
+
+	<!--spark底盘驱动，机器人描述,底盘,相机-->
+	<include file="$(find spark_bringup)/launch/driver_bringup.launch">
+		<arg name="camera_type_tel" value="$(arg camera_type_tel)"/>
+		<arg name="lidar_type_tel" value="$(arg lidar_type_tel)"/>
+	</include>
+
+	<!--UARM机械臂-->
+	<include file="$(find swiftpro)/launch/pro_control_nomoveit.launch"/>
+
+	<!-- 3D sensor -->
+	<arg name="3d_sensor" default="3i_lidar"/>
+	<!-- 启动雷达 -->
+	<include file="$(find lidar_driver_transfer)/launch/$(arg lidar_type_tel).launch">
+	</include>
+		
+
+	<!-- tensorflow物体位置识别 -->
+	<node pkg= "auto_match" name="detect_ros" type="detect_ros.py"  output="screen"> 
+		<remap from="image" to="/camera/color/image_raw" if="$(eval arg('camera_type_tel')=='d435')"/>
+		<remap from="image" to="/camera/rgb/image_raw" if="$(eval arg('camera_type_tel')=='astrapro')"/>
+		<remap from="image" to="/camera/rgb/image_raw" if="$(eval arg('camera_type_tel')=='astra')"/>
+	</node>
+
+	<!-- 地点记录 -->
+	<node pkg="auto_match" name="mark_move" type="mark_move.py" output="screen"/>
+	
+
+	<!-- rviz -->
+	<group if="$(arg open_rviz)">
+		<node pkg="rviz" type="rviz" name="rviz" required="true" args="-d $(find auto_match)/rviz/auto_match.rviz"/>
+	</group>
+	
+	<!-- =====一开始准备记录地点====== -->
+	<group if="$(arg open_guide)">
+
+		<!-- SLAM: Gmapping, Cartographer, Hector, Karto, Frontier_exploration-->
+		<include file="$(find spark_slam)/launch/spark_$(arg slam_methods).launch">
+			<arg name="configuration_basename" value="$(arg configuration_basename)"/>
+		</include>	
+
+		<!-- 地点记录引导脚本 -->
+		<node pkg="auto_match" type="cmd_location_learn_guide.sh" name="cmd_location_learn_guide" />
+
+		<!--创建新的终端，spark键盘控制 “wsad”分别代表“前后左右”-->
+		<node pkg="spark_teleop" type="keyboard_control.sh" name="kc" if="$(arg open_guide)"/>
+
+	</group>
+	
+	<!-- =====记录地点完成后====== -->
+	<group unless="$(arg open_guide)">
+		<!-- Map server-->	
+		<arg name="map_file" default="$(find auto_match)/config/test_map.yaml"/>
+		<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" unless="$(arg open_guide)"/>
+		
+		<!-- 流程程序 -->
+	<node pkg="auto_match" name="runtask" type="runtask.py" output="screen" launch-prefix="xterm -e" unless="$(arg open_guide)"/>
+
+		
+		<!-- AMCL-->
+		<arg name="custom_amcl_launch_file" default="$(find auto_match)/config/amcl.launch.xml"/>
+		<arg name="initial_pose_x" default="0.0"/> 
+		<arg name="initial_pose_y" default="0.0"/> 
+		<arg name="initial_pose_a" default="-0.4"/>
+		<include file="$(arg custom_amcl_launch_file)">
+				<arg name="initial_pose_x" value="$(arg initial_pose_x)"/>
+				<arg name="initial_pose_y" value="$(arg initial_pose_y)"/>
+				<arg name="initial_pose_a" value="$(arg initial_pose_a)"/>
+		</include> 
+		
+		<!-- Move base -->
+		<arg name="custom_param_file" default="$(find auto_match)/config/move_base_param/costmap_common_params.yaml"/>
+		<include file="$(find auto_match)/config/move_base_param/move_base.launch.xml">
+			<arg name="custom_param_file" value="$(arg custom_param_file)"/>
+		</include>
+
+		<!-- 启动move_demo -->
+		<include file="$(find move_demo)/launch/move_demo.launch" />
+	
+	</group>
+
+</launch>

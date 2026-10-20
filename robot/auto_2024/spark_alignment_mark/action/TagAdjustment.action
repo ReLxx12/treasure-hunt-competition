@@ -1,0 +1,25 @@
+# Define the goal
+# adjustment_type 参数的定义项
+uint8 TYPE_JUST_FACE = 0
+uint8 TYPE_CENTER_FACE = 1
+
+# params
+uint8 adjustment_type  # 调整方式的类型
+
+---
+# Define the result
+uint8 SUCCESS = 0
+uint8 ERROR = 1
+uint8 PREEMPT = 2
+
+# 执行结果
+uint8 result
+
+---
+# Define a feedback message
+uint8 RUNNING = 0
+uint8 EXEC_TURNNING = 1
+uint8 EXEC_MOVING = 2
+
+# 当前步骤
+uint8 state

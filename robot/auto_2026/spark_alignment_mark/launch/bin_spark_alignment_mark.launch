@@ -1,0 +1,8 @@
+<launch>
+	<include file="$(find ar_track_alvar)/launch/d435_center_only.launch"></include>
+
+	<!-- 启动move_demo -->
+	<include file="$(find move_demo)/launch/move_demo.launch" />
+
+	<node name="adjustment_node" pkg="spark_alignment_mark" type="adjustment_node" output="screen" />
+</launch>

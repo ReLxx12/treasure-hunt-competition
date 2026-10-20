@@ -1,0 +1,8 @@
+<launch>
+	<include file="$(find ar_track_alvar)/launch/d435_indiv_no_kinect.launch"></include>
+
+	<!-- 启动move_demo -->
+	<include file="$(find move_demo)/launch/move_demo.launch" />
+
+	<node name="adjustment_3d_node" pkg="spark_alignment_mark" type="adjustment_3d_node" output="screen" />
+</launch>

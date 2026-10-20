@@ -1,0 +1,10 @@
+train: images/train
+val: images/val
+nc: 6
+names:
+  0: cake
+  1: banana
+  2: apple
+  3: clock
+  4: broccoli
+  5: teddybear
